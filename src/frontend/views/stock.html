@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockVision - Central de Inventário</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/stock.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h2>StockVision</h2>
+                <p>Veja o futuro. Controle o resultado.</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li class="active"><a href="stock.html">📦 Estoque</a></li>
+                <li><a href="demand.html">🔮 Previsão de Demanda</a></li>
+                <li><a href="partners.html">🤝 Pedidos & Fornecedores</a></li>
+                <li><a href="reverse.html">♻️ Logística Reversa</a></li>
+                <li><a href="esg.html">🌱 Sustentabilidade (ESG)</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="user-info">
+                    <h3>Central de Gestão de Inventário e Indicadores</h3>
+                    <p id="company-name-display">Carregando...</p>
+                </div>
+                <button id="theme-toggle" class="theme-btn" aria-label="Alternar tema">🌓</button>
+            </header>
+
+            <section id="details-drawer" class="product-details-drawer">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 id="drawer-product-name" style="color: var(--color-primary);">Nome do Produto Selecionado</h4>
+                    <button class="action-icon" onclick="document.getElementById('details-drawer').style.display='none'">❌</button>
+                </div>
+                <div class="drawer-grid">
+                    <div class="card" style="margin:0;">
+                        <small style="color: var(--text-secondary)">Endereço Físico Estruturado (WMS)</small>
+                        <div id="drawer-location" style="font-weight: bold; margin-top: 5px;">...</div>
+                    </div>
+                    <div class="card" style="margin:0;">
+                        <small style="color: var(--text-secondary)">Capital de Giro Estocado</small>
+                        <div id="drawer-turnover" style="font-weight: bold; margin-top: 5px; color: var(--color-esg);">...</div>
+                    </div>
+                    <div class="card" style="margin:0;">
+                        <small style="color: var(--text-secondary)">Status Crítico Operational</small>
+                        <div id="drawer-status-tag" style="font-weight: bold; margin-top: 5px;">...</div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="filter-bar-container">
+                <div class="filter-controls">
+                    <input type="text" id="search-name" placeholder="🔍 Buscar por nome ou SKU...">
+                    <select id="search-category"><option value="">Categorias</option></select>
+                    <select id="search-status">
+                        <option value="">Todos os Statuses</option>
+                        <option value="Normal">Status: Normal</option>
+                        <option value="Ruptura">Status: Ruptura</option>
+                        <option value="Estoque Baixo">Status: Estoque Baixo</option>
+                        <option value="Excesso">Status: Excesso</option>
+                    </select>
+                    <input type="number" id="search-max-price" placeholder="💰 Preço Máximo (R$)">
+                </div>
+                <button class="btn" onclick="openCreateModal()">➕ Cadastrar Novo Produto</button>
+            </div>
+
+            <section class="data-section" style="margin-top: 0;">
+                <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produto / SKU</th>
+                                <th>Endereço Físico WMS</th>
+                                <th>Saldo Atual</th>
+                                <th>Preço Venda</th>
+                                <th>Status Logístico</th>
+                                <th style="text-align: center;">Ações Gerenciais</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body">
+                            <tr><td colspan="6" style="text-align: center;">Sincronizando posições NoSQL...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="create-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color: var(--color-primary);">📥 Lançamento de Insumo</h3>
+            <form id="product-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div>
+                    <label for="name">Nome do Produto *</label>
+                    <input type="text" id="name" placeholder="Ex: Switch Cisco 24p" required>
+                </div>
+                <div>
+                    <label for="category">Categoria *</label>
+                    <input type="text" id="category" placeholder="Ex: Redes" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div>
+                        <label for="acquisitionCost">Custo Aquisição (R$)</label>
+                        <input type="number" id="acquisitionCost" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="sellingPrice">Preço Venda (R$)</label>
+                        <input type="number" id="sellingPrice" step="0.01" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                    <div>
+                        <label for="quantityInStock">Qtd Inicial</label>
+                        <input type="number" id="quantityInStock" required>
+                    </div>
+                    <div>
+                        <label for="minimumStock">Est. Mínimo</label>
+                        <input type="number" id="minimumStock" required>
+                    </div>
+                    <div>
+                        <label for="maximumStock">Est. Máximo</label>
+                        <input type="number" id="maximumStock" required>
+                    </div>
+                </div>
+                
+                <fieldset>
+                    <legend>📍 Coordenadas de Endereçamento Físico (WMS)</legend>
+                    <div class="grid-inputs">
+                        <input type="text" id="sector" placeholder="Setor" required>
+                        <input type="text" id="row" placeholder="Rua" required>
+                        <input type="text" id="building" placeholder="Prédio" required>
+                        <input type="text" id="floor" placeholder="Andar" required>
+                    </div>
+                    <input type="text" id="apartment" placeholder="Vão / Posição" style="margin-top: 0.75rem;" required>
+                </fieldset>
+
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin: 0.25rem 0;">
+                    <input type="checkbox" id="isIndeterminateExpiration" checked>
+                    <label for="isIndeterminateExpiration" style="margin-bottom: 0; cursor: pointer;">Produto Sem Validade Estrita</label>
+                </div>
+                <div id="expiration-container" style="display: none;">
+                    <label for="expirationDate">Data de Vencimento *</label>
+                    <input type="date" id="expirationDate">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancelar</button>
+                    <button type="submit" class="btn">Confirmar Entrada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color: var(--color-primary);">✏️ Atualizar Parâmetros Logísticos</h3>
+            <form id="edit-product-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label for="edit-name">Nome do Produto</label>
+                    <input type="text" id="edit-name" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div>
+                        <label for="edit-quantity">Saldo Físico Atual</label>
+                        <input type="number" id="edit-quantity" required>
+                    </div>
+                    <div>
+                        <label for="edit-price">Preço de Venda (R$)</label>
+                        <input type="number" id="edit-price" step="0.01" required>
+                    </div>
+                </div>
+                
+                <fieldset>
+                    <legend>📍 Remanejo e Reendereçamento (WMS)</legend>
+                    <div class="grid-inputs">
+                        <input type="text" id="edit-sector" placeholder="Setor" required>
+                        <input type="text" id="edit-row" placeholder="Rua" required>
+                        <input type="text" id="edit-building" placeholder="Prédio" required>
+                        <input type="text" id="edit-floor" placeholder="Andar" required>
+                    </div>
+                    <input type="text" id="edit-apartment" placeholder="Vão / Posição" style="margin-top: 0.75rem;" required>
+                </fieldset>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('edit-modal').style.display='none'">Cancelar</button>
+                    <button type="submit" class="btn">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

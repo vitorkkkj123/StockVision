@@ -1,25 +1,3 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./config/database.js');
-
-// --- IMPORTAÇÃO DOS ROTEADORES DO ECOSSISTEMA ---
-const authRoutes = require('./routes/authRoutes.js');
-const stockRoutes = require('./routes/stockRoutes.js');
-const esgRoutes = require('./routes/esgRoutes.js');
-const supplyRoutes = require('./routes/supplyRoutes.js'); 
-const demandRoutes = require('./routes/demandRoutes.js');   // Módulo Preditivo IA
-const reverseRoutes = require('./routes/reverseRoutes.js'); // Módulo Logística Reversa
-
-const app = express();
-
-// Inicializa conexão NoSQL com MongoDB
-connectDB();
-
-// Middlewares Globais de Segurança e Payload
-app.use(cors());
-app.use(express.json());
-
 // --- MAPEAMENTO DAS ROTAS DA API ---
 app.use('/api/auth', authRoutes);
 app.use('/api/stock', stockRoutes);
@@ -27,6 +5,34 @@ app.use('/api/esg', esgRoutes);
 app.use('/api/supply', supplyRoutes);   
 app.use('/api/demand', demandRoutes);   // Injeção do motor IA de Demanda
 app.use('/api/reverse', reverseRoutes); // Injeção da Economia Circular/ESG
+
+// =======================================================
+//   ROTEAMENTO E SERVIÇO DE ARQUIVOS ESTÁTICOS (RENDER)
+// =======================================================
+const path = require('path');
+
+// 1. Libera o acesso público à pasta 'frontend' (essencial para carregar assets/css, assets/js e assets/img)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// 2. Rota para carregar as páginas da pasta 'views' de forma amigável (Ex: se acessar /login, abre login.html)
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/views/login.html'));
+});
+
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/views/register.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/views/dashboard.html'));
+});
+
+// 3. Rota Coringa: Se acessar a raiz (/) ou qualquer outra rota não mapeada, entrega o index.html principal
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+// =======================================================
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

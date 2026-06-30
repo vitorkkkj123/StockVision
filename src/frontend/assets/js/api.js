@@ -3,7 +3,7 @@
  * Este arquivo centraliza todas as chamadas HTTP para o servidor Node.js.
  */
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = '/api';
 
 /**
  * 💾 GERENCIADOR DE SESSÃO LOCAL (LocalStorage)

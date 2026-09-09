@@ -133,7 +133,7 @@ JWT_SECRET=sua-chave-secreta-super-forte
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/StockVision.git
+git clone https://github.com/vitorkkkj123/StockVision
 cd StockVision
 ```
 
@@ -229,7 +229,8 @@ Este projeto está em desenvolvimento e pode ser adaptado conforme a necessidade
 
 ## Autor
 
-Deyson Santana
+- **Vitor Guilherme** - [GitHub](https://github.com/vitorkkkj123)
+- Turma de Analise e Desenvolvimento de Sistemas
 
 ## Dúvidas e melhorias
 
